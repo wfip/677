@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الهروب من العاصفة والاحتماء</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+            color: #ff9800;
+            text-shadow: 0 0 10px rgba(255,152,0,0.5);
+        }
+
+        p {
+            margin: 5px 0 15px 0;
+            color: #ccc;
+        }
+
+        #game-container {
+            position: relative;
+            width: 450px;
+            height: 600px;
+            background: linear-gradient(to bottom, #2b2b2b, #111);
+            border: 4px solid #444;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+
+        /* اللاعب (الناجي) */
+        #player {
+            position: absolute;
+            width: 35px;
+            height: 45px;
+            background-color: #00bcd4; /* لون مميز للّاعب */
+            border-radius: 6px;
+            bottom: 20px;
+            left: 205px;
+            transition: left 0.08s ease, bottom 0.08s ease;
+            z-index: 10;
+            box-shadow: 0 0 12px rgba(0,188,212,0.6);
+        }
+
+        /* حطام العاصفة (العقبات) */
+        .debris {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #e91e63; /* أحمر/وردي خطر */
+            border-radius: 50%;
+            top: -40px;
+            animation: fall linear infinite;
+            box-shadow: 0 0 15px rgba(233,30,99,0.8);
+        }
+
+        /* حقائب المؤن (أغراض النجاة) */
+        .supply {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #4caf50; /* أخضر */
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 0 10px rgba(76,175,80,0.6);
+        }
+
+        /* الملاجئ الآمنة (أماكن الاحتماء) */
+        .shelter {
+            position: absolute;
+            width: 60px;
+            height: 50px;
+            background-color: #ff9800; /* برتقالي للملجأ */
+            border-radius: 8px 8px 0 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #111;
+            box-shadow: 0 -4px 10px rgba(255,152,0,0.4);
+        }
+
+        @keyframes fall {
+            to { transform: translateY(650px); }
+        }
+
+        /* لوحة البيانات */
+        #ui {
+            display: flex;
+            gap: 30px;
+            margin-top: 15px;
+            font-size: 18px;
+            background: rgba(0,0,0,0.6);
+            padding: 10px 25px;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+
+        .stat-box { font-weight: bold; }
+        #timer { color: #ffeb3b; }
+        #supplies-count { color: #4caf50; }
+
+        /* شاشات البداية والنهاية */
+        #screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(15,15,15,0.92);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            visibility: hidden;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #screen.active { visibility: visible; }
+
+        button {
+            margin-top: 25px;
+            padding: 12px 35px;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #ff9800;
+            color: #111;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        button:hover { 
+            background-color: #e65100; 
+            color: white;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>الهروب من الإعصار والاحتماء 🌪️</h1>
+    <p>اجمع المؤن واهتمِ داخل الملاجئ البرتقالية قبل انتهاء الوقت المتبقي!</p>
+
+    <div id="game-container">
+        <div id="player"></div>
+
+        <!-- الملاجئ الثابتة في الأسفل للاحتماء -->
+        <div class="shelter" style="left: 40px;">🏠</div>
+        <div class="shelter" style="left: 350px;">🏠</div>
+
+        <!-- الشاشة التفاعلية للرسائل -->
+        <div id="screen" class="active">
+            <h2 id="screen-title" style="color: #ff9800; font-size: 28px;">إنذار العاصفة الشديدة!</h2>
+            <p id="screen-msg" style="max-width: 350px; line-height: 1.6;">
+                تحرك بالأسهم (← ↑ → ↓) أو الأزرار (W, A, S, D). 
+                <br>اجمع 5 حقائب مؤن 🎒 ثم ادخل فوراً إلى أحد الملاجئ الآمنة 🏠 في الأسفل للاحتماء!
+            </p>
+            <button onclick="startGame()">ابدأ النجاة</button>
+        </div>
+    </div>
+
+    <div id="ui">
+        <div class="stat-box">الوقت المتبقي: <span id="timer">45</span> ثانية</div>
+        <div class="stat-box">المؤن المجموعة: <span id="supplies-count">0</span> / 5</div>
+    </div>
+
+    <script>
+        const player = document.getElementById('player');
+        const gameContainer = document.getElementById('game-container');
+        const timerTxt = document.getElementById('timer');
+        const suppliesTxt = document.getElementById('supplies-count');
+        const screen = document.getElementById('screen');
+        const screenTitle = document.getElementById('screen-title');
+        const screenMsg = document.getElementById('screen-msg');
+
+        const width = 450;
+        const height = 600;
+        const pSize = 35;
+        const speed = 22;
+
+        let pX = 205;
+        let pY = 20; 
+        let collectedSupplies = 0;
+        let timeRemaining = 45;
+        let mainLoop, debrisLoop, supplyLoop;
+        let activeGame = false;
+
+        function startGame() {
+            collectedSupplies = 0;
+            timeRemaining = 45;
+            pX = 205;
+            pY = 20;
+            suppliesTxt.innerText = "0";
+            timerTxt.innerText = "45";
+            activeGame = true;
+
+            screen.classList.remove('active');
+            document.querySelectorAll('.debris, .supply').forEach(el => el.remove());
+            renderPlayer();
+
+            // تشغيل عداد الوقت والمولدات
+            mainLoop = setInterval(countdown, 1000);
+            debrisLoop = setInterval(spawnDebris, 600); // تساقط حطام كل 0.6 ثانية
+            supplyLoop = setInterval(spawnSupply, 2500); // تظهر حقيبة كل ثانيتين ونصف
+        }
+
+        // التحكم بالحركة
+        document.addEventListener('keydown', (e) => {
+            if (!activeGame) return;
+
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+                pX = Math.max(0, pX - speed);
+            } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+                pX = Math.min(width - pSize, pX + speed);
+            } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+                pY = Math.min(height - 45, pY + speed);
+            } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+                pY = Math.max(0, pY - speed);
+            }
+            renderPlayer();
+            detectCollisions();
+        });
+
+        function renderPlayer() {
+            player.style.left = pX + 'px';
+            player.style.bottom = pY + 'px';
+        }
+
+        function countdown() {
+            timeRemaining--;
+            timerTxt.innerText = timeRemaining;
+
+            if (timeRemaining <= 0) {
+                endGame(false, "انتهى الوقت!", "ضربت العاصفة القوية المكان بالكامل قبل أن تحتمي!");
+            }
+        }
+
+        // توليد حطام العاصفة المتساقط
+        function spawnDebris() {
+            if (!activeGame) return;
+            const debris = document.createElement('div');
+            debris.classList.add('debris');
+            debris.innerText = "🌪️";
+            debris.style.display = "flex";
+            debris.style.alignItems = "center";
+            debris.style.justifyContent = "center";
+            debris.style.left = Math.random() * (width - 30) + 'px';
+            
+            const fallTime = Math.random() * 1.5 + 1.5; // سرعة عشوائية للسقوط
+            debris.style.animationDuration = fallTime + 's';
+            
+            gameContainer.appendChild(debris);
+            setTimeout(() => { debris.remove(); }, fallTime * 1000);
+        }
+
+        // توليد حقائب المؤن
+        function spawnSupply() {
+            if (!activeGame || document.querySelectorAll('.supply').length > 2) return;
+            const supply = document.createElement('div');
+            supply.classList.add('supply');
+            supply.innerText = "🎒";
+            supply.style.left = Math.random() * (width - 30) + 'px';
+            supply.style.top = Math.random() * (height - 200) + 100 + 'px'; 
+            
+            gameContainer.appendChild(supply);
+            setTimeout(() => { supply.remove(); }, 6000); // تختفي بعد 6 ثوانٍ إن لم تجمع
+        }
+
+        // فحص الاصطدام والاحتماء
+        function detectCollisions() {
+            const pRect = player.getBoundingClientRect();
+
+            // 1. الاصطدام بحطام العاصفة (خسارة)
+            document.querySelectorAll('.debris').forEach(deb => {
+                if (isOverlapping(pRect, deb.getBoundingClientRect())) {
+                    endGame(false, "إصابة مباشرة!", "ضربك حطام متطاير من الإعصار. حاول مجدداً ونوّع حركتك!");
+                }
+            });
+
+            // 2. تجميع المؤن
+            document.querySelectorAll('.supply').forEach(sup => {
+                if (isOverlapping(pRect, sup.getBoundingClientRect())) {
+                    sup.remove();
+                    collectedSupplies++;
+                    suppliesTxt.innerText = collectedSupplies;
+                }
+            });
+
+            // 3. فحص الاحتماء داخل الملجأ (الفوز)
+            if (pY <= 15) { // اللاعب في قاع الشاشة حيث توجد الملاجئ
+                document.querySelectorAll('.shelter').forEach(she => {
+                    if (isOverlapping(pRect, she.getBoundingClientRect())) {
+                        if (collectedSupplies >= 5) {
+                            endGame(true, "نجوت بنجاح! 🎉", `استطعت جمع ${collectedSupplies} حقائب مؤن واحتَميت داخل الملجأ الآمن حتى مرت العاصفة.`);
+                        } else {
+                            // تنبيه إذا دخل بدون مؤن كافية
+                            pY = 25; 
+                            renderPlayer();
+                        }
+                    }
+                });
+            }
+        }
+
+        // دالة رياضية للتحقق من تداخل المربعات
+        function isOverlapping(rect1, rect2) {
+            return !(rect1.right < rect2.left || 
+                     rect1.left > rect2.right || 
+                     rect1.bottom < rect2.top || 
+                     rect1.top > rect2.bottom);
+        }
+
+        function endGame(won, title, msg) {
+            activeGame = false;
+            clearInterval(mainLoop);
+            clearInterval(debrisLoop);
+            clearInterval(supplyLoop);
+
+            screenTitle.innerText = title;
+            screenTitle.style.color = won ? "#4caf50" : "#e91e63";
+            screenMsg.innerHTML = msg;
+            screen.classList.add('active');
+        }
+    </script>
+</body>
+</html>
