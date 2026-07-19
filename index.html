@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>لعبة يا رجال67 🐍 - نسخة التحكم الكامل والطرد</title>
+    <title>لعبة يا رجال67 🐍 - نسخة الطرد والتحكم</title>
     <style>
         body {
             background-color: #4a752c;
@@ -244,8 +244,7 @@
         <input type="text" id="targetPlayerName" class="cheat-input" placeholder="اسم اللاعب">
         <input type="number" id="targetPlayerScore" class="cheat-input" placeholder="السكور الجديد">
         <button class="cheat-btn green" onclick="adminModifyScore(event)">تعديل نتيجته ✏️</button>
-        <button class="cheat-btn" onclick="adminForceRank100(event)">نزل مركز 100 📉</button>
-        <!-- الزر الجديد لحذف اللاعبين نهائياً -->
+        <!-- تم الاكتفاء بزر الطرد النهائي النظيف وحذف نظام اللاعب المؤقت -->
         <button class="cheat-btn black" onclick="adminRemovePlayer(event)">طرد نهائي ❌</button>
     </div>
 </div>
@@ -268,7 +267,7 @@
         <div class="overlay" id="error404Screen" style="display: none; text-align: center; padding: 10px;">
             <div class="error-code">404</div>
             <div class="snake-emoji">🐍❌</div>
-            <h3 style="margin: 5px 0; font-size: 18px;">أفااا! مضيع الطريق يا وحش?</h3>
+            <h3 style="margin: 5px 0; font-size: 18px;">أفااا! مضيع الطريق يا وحش؟</h3>
             <p style="color: #aad751; font-size: 12px; margin-bottom: 15px;">الصفحة مهيب موجودة، شكله الثعبان أكل الرابط!</p>
             <button class="back-btn" onclick="recoverFrom404(event)">ارجع للعبة يا رجال67 🔄</button>
         </div>
@@ -281,7 +280,7 @@
 </div>
 
 <div class="mobile-controls">
-    <div class="btn-touch" onmousedown="handleTouch('Up', event)" ontouchstart="handleTouch('Up', event)">⬆️</div>
+    <div class="btn-touch" onmousedown="handleTouch('Up', event)" ontouchstart="shareTouch('Up', event)">⬆️</div>
     <div class="row">
         <div class="btn-touch" onmousedown="handleTouch('Left', event)" ontouchstart="handleTouch('Left', event)">⬅️</div>
         <div class="btn-touch" onmousedown="handleTouch('Right', event)" ontouchstart="handleTouch('Right', event)">➡️</div>
@@ -324,7 +323,7 @@
         }
     }
 
-    // حركة حذف وطرد اللاعب نهائياً
+    // طرد نهائي للاعب من القائمة تماماً
     function adminRemovePlayer(e) {
         if(e) e.preventDefault();
         const targetName = document.getElementById("targetPlayerName").value.trim();
@@ -334,7 +333,6 @@
             return;
         }
 
-        // فلترة القائمة وحذف اللاعب
         const originalLength = leaderBoardData.length;
         leaderBoardData = leaderBoardData.filter(item => item.name !== targetName);
 
@@ -343,7 +341,7 @@
         } else {
             sortAndSave();
             updateLeaderboardView();
-            alert(`تم حذف اللاعب ${targetName} بنجاح من التوب 100! 🧹`);
+            alert(`تم طرد اللاعب ${targetName} وحذفه من التوب 100! 🧹`);
         }
     }
 
@@ -376,31 +374,6 @@
         sortAndSave();
         updateLeaderboardView();
         alert(`تم تعديل سكور ${targetName} إلى ${targetScore} بنجاح!`);
-    }
-
-    function adminForceRank100(e) {
-        if(e) e.preventDefault();
-        const targetName = document.getElementById("targetPlayerName").value.trim();
-
-        if(!targetName) {
-            alert("اكتب اسم اللاعب لتنزيله مركز 100!");
-            return;
-        }
-
-        leaderBoardData = leaderBoardData.filter(item => item.name !== targetName);
-        
-        while(leaderBoardData.length < 99) {
-            leaderBoardData.push({ name: "لاعب_مؤقت_" + Math.floor(Math.random()*1000), score: 1 });
-        }
-
-        leaderBoardData.sort((a, b) => b.score - a.score);
-        let lowestScore = leaderBoardData.length > 0 ? leaderBoardData[leaderBoardData.length - 1].score : 0;
-        let rank100Score = lowestScore > 0 ? lowestScore - 1 : 0;
-
-        leaderBoardData.push({ name: targetName, score: rank100Score });
-        sortAndSave();
-        updateLeaderboardView();
-        alert(`تم طرد ${targetName} وضبطه في المركز 100 بسكور ${rank100Score}!`);
     }
 
     function cheatAddScore(e) {
