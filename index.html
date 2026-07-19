@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>لعبة يا رجال67 🐍 - نسخة التحكم النهائي</title>
+    <title>لعبة يا رجال67 🐍 - نسخة التنظيف الجذري</title>
     <style>
         body {
             background-color: #4a752c;
@@ -99,6 +99,7 @@
         .cheat-btn.purple { background-color: #9b59b6; }
         .cheat-btn.blue { background-color: #1a73e8; }
         .cheat-btn.black { background-color: #111111; }
+        .cheat-btn.orange { background-color: #d35400; }
 
         .main-container {
             display: flex;
@@ -238,6 +239,7 @@
         <button class="cheat-btn blue" onclick="cheatChangeSpeed(90, event)">سرعة طيارة ⚡</button>
         <button class="cheat-btn" onclick="cheatChangeSpeed(250, event)">سرعة بطيء 🐢</button>
         <button class="cheat-btn purple" onclick="triggerFake404(event)">تجرِبة خطأ 404 ⚠️</button>
+        <button class="cheat-btn orange" onclick="clearAllLeaderboard(event)">تصفير القائمة بالكامل 🧹</button>
     </div>
     <div class="cheat-section">
         <input type="text" id="targetPlayerName" class="cheat-input" placeholder="اسم اللاعب">
@@ -265,7 +267,7 @@
         <div class="overlay" id="error404Screen" style="display: none; text-align: center; padding: 10px;">
             <div class="error-code">404</div>
             <div class="snake-emoji">🐍❌</div>
-            <h3 style="margin: 5px 0; font-size: 18px;">أفااا! مضيع الطريق يا وحش?</h3>
+            <h3 style="margin: 5px 0; font-size: 18px;">أفااا! مضيع الطريق يا وحش؟</h3>
             <p style="color: #aad751; font-size: 12px; margin-bottom: 15px;">الصفحة مهيب موجودة، شكله الثعبان أكل الرابط!</p>
             <button class="back-btn" onclick="recoverFrom404(event)">ارجع للعبة يا رجال67 🔄</button>
         </div>
@@ -300,7 +302,7 @@
     let gameInterval;
     let playerName = "يا رجال67";
     let speed = 190; 
-    let isTardy = false; // حارس للتأكد من عدم إعادة التسجيل أثناء اللعب النشط
+    let isTardy = false; 
 
     let leaderBoardData = JSON.parse(localStorage.getItem("snake_real_top100_v2")) || [];
 
@@ -322,7 +324,18 @@
         }
     }
 
-    // دالة الطرد النهائي الصارمة
+    // تصفية وحذف المتصفح بالكامل لتنظيف الحسابات القديمة
+    function clearAllLeaderboard(e) {
+        if(e) e.preventDefault();
+        if(confirm("متأكد تبغى تصفر لوحة الصدارة بالكامل وتمسح كل اللاعبين؟")) {
+            leaderBoardData = [];
+            localStorage.setItem("snake_real_top100_v2", JSON.stringify([]));
+            updateLeaderboardView();
+            alert("تم تنظيف وتصفير القائمة بنجاح! 🧹");
+        }
+    }
+
+    // دالة طرد لاعب محدد
     function adminRemovePlayer(e) {
         if(e) e.preventDefault();
         const targetName = document.getElementById("targetPlayerName").value.trim();
@@ -332,23 +345,20 @@
             return;
         }
 
-        // جلب آخر بيانات مخزنة للتأكد من مزامنتها
         leaderBoardData = JSON.parse(localStorage.getItem("snake_real_top100_v2")) || [];
         const originalLength = leaderBoardData.length;
         
-        // تصفية وحذف كامل
         leaderBoardData = leaderBoardData.filter(item => item.name !== targetName);
 
         if(leaderBoardData.length === originalLength) {
             alert("مالقيت لاعب بهذا الاسم في القائمة 🤔");
         } else {
-            // إذا اللاعب المطرود هو نفسه اللي يلعب حالياً، نوقف حارس السكور
             if (targetName === playerName) {
                 isTardy = true; 
             }
             localStorage.setItem("snake_real_top100_v2", JSON.stringify(leaderBoardData));
             updateLeaderboardView();
-            alert(`تم طرد اللاعب ${targetName} وحذفه تماماً بنجاح! 🧹`);
+            alert(`تم طرد اللاعب ${targetName} وحذفه نهائياً!`);
         }
     }
 
@@ -463,7 +473,7 @@
     }
 
     function updateLiveScore() {
-        if (isTardy) return; // منع التحديث وإعادة الاسم إذا كان مطروداً في هذا الدور
+        if (isTardy) return; 
         leaderBoardData = JSON.parse(localStorage.getItem("snake_real_top100_v2")) || [];
         leaderBoardData = leaderBoardData.filter(item => item.name !== playerName);
         leaderBoardData.push({ name: playerName, score: score });
@@ -557,7 +567,7 @@
         gameInterval = setInterval(update, speed);
     }
 
-    // تحديث أولي عند تشغيل الصفحة لقراءة البيانات المحفوظة سابقاً
+    // قراءة اللوحة فور التشغيل لضمان المزامنة
     updateLeaderboardView();
 </script>
 </body>
