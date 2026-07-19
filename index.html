@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>لعبة يا رجال67 🐍 - النسخة الشاملة</title>
+    <title>لعبة يا رجال67 🐍 - نسخة التحكم الكامل والطرد</title>
     <style>
         body {
             background-color: #4a752c;
@@ -98,6 +98,7 @@
         .cheat-btn.green { background-color: #2ecc71; }
         .cheat-btn.purple { background-color: #9b59b6; }
         .cheat-btn.blue { background-color: #1a73e8; }
+        .cheat-btn.black { background-color: #111111; }
 
         .main-container {
             display: flex;
@@ -244,6 +245,8 @@
         <input type="number" id="targetPlayerScore" class="cheat-input" placeholder="السكور الجديد">
         <button class="cheat-btn green" onclick="adminModifyScore(event)">تعديل نتيجته ✏️</button>
         <button class="cheat-btn" onclick="adminForceRank100(event)">نزل مركز 100 📉</button>
+        <!-- الزر الجديد لحذف اللاعبين نهائياً -->
+        <button class="cheat-btn black" onclick="adminRemovePlayer(event)">طرد نهائي ❌</button>
     </div>
 </div>
 
@@ -251,24 +254,21 @@
     <div class="game-box">
         <canvas id="gameCanvas" width="360" height="360"></canvas>
         
-        <!-- شاشة البداية -->
         <div class="overlay" id="startScreen">
             <h2 style="margin-bottom:10px; font-size: 22px;">سجل اسمك يا وحش 🔥</h2>
             <input type="text" id="playerNameInput" placeholder="يا رجال67" maxlength="12">
             <button class="start-btn" onclick="initPlayerName(event)">دخول اللعبة 🎮</button>
         </div>
 
-        <!-- شاشة النهاية -->
         <div class="overlay" id="gameOverScreen" style="display: none;">
             <h2 id="gameOverText" style="font-size: 22px;">انتهت اللعبة!</h2>
             <button class="restart-btn" onclick="resetGame(event)">إعادة اللعب 🔄</button>
         </div>
 
-        <!-- شاشة 404 المدمجة والذكية لحل مشكلة الضياع -->
         <div class="overlay" id="error404Screen" style="display: none; text-align: center; padding: 10px;">
             <div class="error-code">404</div>
             <div class="snake-emoji">🐍❌</div>
-            <h3 style="margin: 5px 0; font-size: 18px;">أفااا! مضيع الطريق يا وحش؟</h3>
+            <h3 style="margin: 5px 0; font-size: 18px;">أفااا! مضيع الطريق يا وحش?</h3>
             <p style="color: #aad751; font-size: 12px; margin-bottom: 15px;">الصفحة مهيب موجودة، شكله الثعبان أكل الرابط!</p>
             <button class="back-btn" onclick="recoverFrom404(event)">ارجع للعبة يا رجال67 🔄</button>
         </div>
@@ -308,7 +308,6 @@
 
     document.addEventListener("keydown", changeDirection);
 
-    // التحقق من كود المطور 67
     function accessDeveloperMenu(e) {
         if(e) e.preventDefault();
         const menu = document.getElementById("cheatMenu");
@@ -325,7 +324,29 @@
         }
     }
 
-    // تشغيل شاشة 404 فجأة للتجربة من قائمة المطور
+    // حركة حذف وطرد اللاعب نهائياً
+    function adminRemovePlayer(e) {
+        if(e) e.preventDefault();
+        const targetName = document.getElementById("targetPlayerName").value.trim();
+
+        if(!targetName) {
+            alert("اكتب اسم اللاعب اللي تبغى تحذفه أولاً!");
+            return;
+        }
+
+        // فلترة القائمة وحذف اللاعب
+        const originalLength = leaderBoardData.length;
+        leaderBoardData = leaderBoardData.filter(item => item.name !== targetName);
+
+        if(leaderBoardData.length === originalLength) {
+            alert("مالقيت لاعب بهذا الاسم في القائمة 🤔");
+        } else {
+            sortAndSave();
+            updateLeaderboardView();
+            alert(`تم حذف اللاعب ${targetName} بنجاح من التوب 100! 🧹`);
+        }
+    }
+
     function triggerFake404(e) {
         if(e) e.preventDefault();
         clearInterval(gameInterval);
@@ -334,7 +355,6 @@
         document.getElementById("error404Screen").style.display = "flex";
     }
 
-    // العودة الآمنة الفورية من شاشة الـ 404 المدمجة دون الخروج من الصفحة
     function recoverFrom404(e) {
         if(e) e.preventDefault();
         document.getElementById("error404Screen").style.display = "none";
