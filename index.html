@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة يا رجال67 🐍 - التوب 100 الحقيقي</title>
+    <title>خطأ 404 - الصفحة مفقودة 🐍</title>
     <style>
         body {
             background-color: #4a752c;
@@ -14,449 +14,73 @@
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
+            color: white;
+            text-align: center;
             user-select: none;
         }
-        .top-bar {
-            width: 730px;
-            background-color: #4a752c;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 20px;
-            box-sizing: border-box;
-        }
-        .game-title {
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .score-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: white;
-            font-size: 26px;
-            font-weight: bold;
-        }
-        .main-container {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-        }
-        .game-box {
-            position: relative;
+        .error-container {
+            background-color: #3b5c22;
             border: 10px solid #578a34;
             border-radius: 12px;
-            overflow: hidden;
+            padding: 40px;
             box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+            max-width: 400px;
+            width: 90%;
         }
-        canvas {
-            display: block;
-            background-color: #aad751;
-        }
-        /* لوحة الصدارة الجانبية الحقيقية */
-        .leaderboard {
-            width: 210px;
-            height: 420px;
-            background-color: #3b5c22;
-            border: 10px solid #436927;
-            border-radius: 12px;
-            color: white;
-            padding: 15px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 12px 32px rgba(0,0,0,0.4);
-        }
-        .leaderboard h3 {
-            margin: 0 0 10px 0;
-            text-align: center;
-            font-size: 20px;
-            border-bottom: 2px solid #578a34;
-            padding-bottom: 8px;
-        }
-        .score-list {
-            overflow-y: auto;
-            flex-grow: 1;
-            padding-right: 5px;
-        }
-        .score-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 4px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            font-size: 14px;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-        }
-        .score-item.current-user {
-            color: #fff;
-            background-color: #1a73e8;
+        .error-code {
+            font-size: 96px;
             font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            margin: 0;
+            color: #ffd700;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .no-scores {
-            text-align: center;
-            color: rgba(255,255,255,0.5);
-            font-size: 14px;
-            margin-top: 50px;
+        .snake-emoji {
+            font-size: 64px;
+            margin: 20px 0;
+            display: inline-block;
+            animation: wiggle 2s infinite ease-in-out;
         }
-        /* شاشات التغطية */
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.75);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            backdrop-filter: blur(4px);
-            z-index: 10;
+        h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
         }
-        .overlay h2 {
-            font-size: 28px;
-            margin-bottom: 20px;
-            font-weight: bold;
-            text-align: center;
+        p {
+            color: #aad751;
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.5;
         }
-        .overlay input {
-            padding: 12px;
-            font-size: 18px;
-            border: none;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            width: 220px;
-            text-align: center;
-            outline: none;
-        }
-        .start-btn, .restart-btn {
+        .back-btn {
+            display: inline-block;
             background-color: #1a73e8;
             color: white;
-            border: none;
-            padding: 12px 28px;
+            text-decoration: none;
+            padding: 14px 28px;
             font-size: 18px;
             font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
+            border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             transition: all 0.2s ease;
         }
-        .start-btn:hover, .restart-btn:hover {
+        .back-btn:hover {
             background-color: #1557b0;
             transform: scale(1.05);
         }
-        .score-list::-webkit-scrollbar {
-            width: 6px;
-        }
-        .score-list::-webkit-scrollbar-thumb {
-            background-color: #578a34;
-            border-radius: 4px;
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
         }
     </style>
 </head>
 <body>
 
-<div class="top-bar">
-    <div class="game-title">لعبة يا رجال67 🐍</div>
-    <div class="score-container">
-        <span style="font-size: 28px;">🍎</span>
-        <span id="score">0</span>
-    </div>
+<div class="error-container">
+    <div class="error-code">404</div>
+    <div class="snake-emoji">🐍❌</div>
+    <h2>أفااا! مضيع الطريق يا وحش؟</h2>
+    <p>الصفحة اللي تدور عليها مهيب موجودة، شكله الثعبان أكل الرابط وهو جائع!</p>
+    <a href="index.html" class="back-btn">ارجع للعبة يا رجال67 🔄</a>
 </div>
-
-<div class="main-container">
-    <div class="game-box">
-        <canvas id="gameCanvas" width="480" height="420"></canvas>
-        
-        <!-- شاشة البداية لتسجيل الاسم -->
-        <div class="overlay" id="startScreen">
-            <h2>سجل اسمك يا وحش 🔥</h2>
-            <input type="text" id="playerNameInput" placeholder="يا رجال67" maxlength="12">
-            <button class="start-btn" onclick="initPlayerName()">دخول اللعبة 🎮</button>
-        </div>
-
-        <!-- شاشة الخسارة -->
-        <div class="overlay" id="gameOverScreen" style="display: none;">
-            <h2 id="gameOverText">انتهت اللعبة!</h2>
-            <button class="restart-btn" onclick="resetGame()">إعادة اللعب 🔄</button>
-        </div>
-    </div>
-
-    <div class="leaderboard">
-        <h3>أفضل 100 لاعب 🏆</h3>
-        <div class="score-list" id="scoreList"></div>
-    </div>
-</div>
-
-<script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-
-    const gridSize = 30; 
-    const cols = canvas.width / gridSize;
-    const rows = canvas.height / gridSize;
-
-    let snake = [];
-    let food = {x: 0, y: 0};
-    let dx = 1, dy = 0, nextDx = 1, nextDy = 0;
-    let score = 0;
-    let gameInterval;
-    let playerName = "يا رجال67";
-    const speed = 190; 
-
-    // جلب البيانات الحقيقية فقط (تبدأ فارغة تماماً بدون بوتات وهمية)
-    let leaderBoardData = JSON.parse(localStorage.getItem("snake_real_top100")) || [];
-
-    document.addEventListener("keydown", changeDirection);
-
-    function initPlayerName() {
-        const inputVal = document.getElementById("playerNameInput").value.trim();
-        if (inputVal !== "") {
-            playerName = inputVal;
-        }
-        document.getElementById("startScreen").style.display = "none";
-        
-        // إدخال اللاعب الحالي بالسكور صفر
-        removeOldRecord();
-        leaderBoardData.push({ name: playerName, score: 0 });
-        sortAndSave();
-        
-        resetGameData();
-        updateLeaderboardView();
-        gameInterval = setInterval(update, speed);
-    }
-
-    function resetGameData() {
-        snake = [
-            {x: 6, y: 7},
-            {x: 5, y: 7},
-            {x: 4, y: 7}
-        ];
-        dx = 1; dy = 0; nextDx = 1; nextDy = 0;
-        score = 0;
-        document.getElementById("score").innerText = score;
-        generateFood();
-    }
-
-    function update() {
-        dx = nextDx;
-        dy = nextDy;
-
-        let headX = snake[0].x + dx;
-        let headY = snake[0].y + dy;
-
-        // ميزة عبور الجدار
-        if (headX < 0) headX = cols - 1;
-        if (headX >= cols) headX = 0;
-        if (headY < 0) headY = rows - 1;
-        if (headY >= rows) headY = 0;
-
-        const head = {x: headX, y: headY};
-
-        if (checkCollision(head)) {
-            clearInterval(gameInterval);
-            document.getElementById("gameOverText").innerText = `انتهت اللعبة يا ${playerName}! 🎮`;
-            document.getElementById("gameOverScreen").style.display = "flex";
-            return;
-        }
-
-        snake.unshift(head);
-
-        if (head.x === food.x && head.y === food.y) {
-            score++;
-            document.getElementById("score").innerText = score;
-            
-            // تحديث لايف
-            updateLiveScore();
-            
-            generateFood();
-        } else {
-            snake.pop();
-        }
-
-        draw();
-    }
-
-    function updateLiveScore() {
-        removeOldRecord();
-        leaderBoardData.push({ name: playerName, score: score });
-        sortAndSave();
-        updateLeaderboardView();
-
-        setTimeout(() => {
-            const activeItem = document.querySelector(".score-item.current-user");
-            if (activeItem) {
-                activeItem.scrollIntoView({ block: "nearest", behavior: "smooth" });
-            }
-        }, 10);
-    }
-
-    function removeOldRecord() {
-        leaderBoardData = leaderBoardData.filter(item => item.name !== playerName);
-    }
-
-    function sortAndSave() {
-        leaderBoardData.sort((a, b) => b.score - a.score);
-        leaderBoardData = leaderBoardData.slice(0, 100);
-        localStorage.setItem("snake_real_top100", JSON.stringify(leaderBoardData));
-    }
-
-    function updateLeaderboardView() {
-        const listContainer = document.getElementById("scoreList");
-        listContainer.innerHTML = "";
-        
-        if (leaderBoardData.length === 0) {
-            listContainer.innerHTML = `<div class="no-scores">لا توجد أرقام مسجلة بعد 🏆</div>`;
-            return;
-        }
-
-        leaderBoardData.forEach((item, index) => {
-            const itemDiv = document.createElement("div");
-            itemDiv.className = "score-item";
-            if (item.name === playerName) {
-                itemDiv.className += " current-user";
-            }
-            itemDiv.innerHTML = `<span>#${index + 1} ${item.name}</span><span>${item.score}</span>`;
-            listContainer.appendChild(itemDiv);
-        });
-    }
-
-    function draw() {
-        // خلفية المربعات
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                ctx.fillStyle = (r + c) % 2 === 0 ? "#aad751" : "#a2d149";
-                ctx.fillRect(c * gridSize, r * gridSize, gridSize, gridSize);
-            }
-        }
-
-        // رسم التفاحة
-        const fx = food.x * gridSize;
-        const fy = food.y * gridSize;
-        const r = gridSize / 2;
-        ctx.beginPath();
-        ctx.arc(fx + r, fy + r, r - 3, 0, Math.PI * 2);
-        ctx.fillStyle = "#e74c3c";
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(fx + r - 4, fy + r - 4, 3, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-        ctx.fill();
-        ctx.fillStyle = "#795548";
-        ctx.fillRect(fx + r - 1, fy + 2, 2, 5);
-        ctx.beginPath();
-        ctx.ellipse(fx + r + 3, fy + 4, 4, 2, Math.PI / 4, 0, Math.PI * 2);
-        ctx.fillStyle = "#2ecc71";
-        ctx.fill();
-
-        // رسم الثعبان الانسيابي
-        snake.forEach((part, index) => {
-            const sx = part.x * gridSize;
-            const sy = part.y * gridSize;
-
-            if (index === 0) {
-                let gradient = ctx.createRadialGradient(sx + r - 3, sy + r - 3, 2, sx + r, sy + r, r);
-                gradient.addColorStop(0, "#4d79ff");
-                gradient.addColorStop(1, "#1a3da1");
-                ctx.fillStyle = gradient;
-                ctx.beginPath();
-                ctx.arc(sx + r, sy + r, r - 0.5, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = "white";
-                let eye1 = {x: 0, y: 0}, eye2 = {x: 0, y: 0};
-                let pupil1 = {x: 0, y: 0}, pupil2 = {x: 0, y: 0};
-
-                if (dx === 1) { 
-                    eye1 = {x: sx + 20, y: sy + 10}; eye2 = {x: sx + 20, y: sy + 20};
-                    pupil1 = {x: sx + 22, y: sy + 10}; pupil2 = {x: sx + 22, y: sy + 20};
-                } else if (dx === -1) { 
-                    eye1 = {x: sx + 10, y: sy + 10}; eye2 = {x: sx + 10, y: sy + 20};
-                    pupil1 = {x: sx + 8, y: sy + 10}; pupil2 = {x: sx + 8, y: sy + 20};
-                } else if (dy === 1) { 
-                    eye1 = {x: sx + 10, y: sy + 20}; eye2 = {x: sx + 20, y: sy + 20};
-                    pupil1 = {x: sx + 10, y: sy + 22}; pupil2 = {x: sx + 20, y: sy + 22};
-                } else if (dy === -1) { 
-                    eye1 = {x: sx + 10, y: sy + 10}; eye2 = {x: sx + 20, y: sy + 10};
-                    pupil1 = {x: sx + 10, y: sy + 8}; pupil2 = {x: sx + 20, y: sy + 8};
-                }
-
-                ctx.beginPath(); ctx.arc(eye1.x, eye1.y, 5, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.arc(eye2.x, eye2.y, 5, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = "#000";
-                ctx.beginPath(); ctx.arc(pupil1.x, pupil1.y, 2.2, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.arc(pupil2.x, pupil2.y, 2.2, 0, Math.PI * 2); ctx.fill();
-
-            } else {
-                let currentRadius = (r - 1.5) * (1 - (index / (snake.length + 10)) * 0.3);
-                if (currentRadius < 6) currentRadius = 6;
-
-                let bodyGradient = ctx.createRadialGradient(sx + r, sy + r, 2, sx + r, sy + r, currentRadius);
-                if (index % 2 === 0) {
-                    bodyGradient.addColorStop(0, "#5282ff");
-                    bodyGradient.addColorStop(1, "#2b59d6");
-                } else {
-                    bodyGradient.addColorStop(0, "#6692ff");
-                    bodyGradient.addColorStop(1, "#3b6df7");
-                }
-                ctx.fillStyle = bodyGradient;
-
-                ctx.beginPath();
-                ctx.arc(sx + r, sy + r, currentRadius, 0, Math.PI * 2);
-                ctx.fill();
-
-                const prev = snake[index - 1];
-                if (Math.abs(prev.x - part.x) <= 1 && Math.abs(prev.y - part.y) <= 1) {
-                    const psx = prev.x * gridSize + r;
-                    const psy = prev.y * gridSize + r;
-                    ctx.beginPath();
-                    ctx.strokeStyle = index % 2 === 0 ? "#2b59d6" : "#3b6df7";
-                    ctx.lineWidth = currentRadius * 2;
-                    ctx.lineCap = "round";
-                    ctx.moveTo(sx + r, sy + r);
-                    ctx.lineTo(psx, psy);
-                    ctx.stroke();
-                }
-            }
-        });
-    }
-
-    function changeDirection(event) {
-        const keyPressed = event.key;
-        if (keyPressed === "ArrowUp" && dy === 0) { nextDx = 0; nextDy = -1; }
-        else if (keyPressed === "ArrowDown" && dy === 0) { nextDx = 0; nextDy = 1; }
-        else if (keyPressed === "ArrowLeft" && dx === 0) { nextDx = -1; nextDy = 0; }
-        else if (keyPressed === "ArrowRight" && dx === 0) { nextDx = 1; nextDy = 0; }
-    }
-
-    function generateFood() {
-        food.x = Math.floor(Math.random() * cols);
-        food.y = Math.floor(Math.random() * rows);
-        for (let part of snake) {
-            if (part.x === food.x && part.y === food.y) { generateFood(); break; }
-        }
-    }
-
-    function checkCollision(head) {
-        for (let i = 1; i < snake.length; i++) {
-            if (snake[i].x === head.x && snake[i].y === head.y) return true;
-        }
-        return false;
-    }
-
-    function resetGame() {
-        document.getElementById("gameOverScreen").style.display = "none";
-        score = 0;
-        updateLiveScore();
-        resetGameData();
-        gameInterval = setInterval(update, speed);
-    }
-</script>
 
 </body>
 </html>
