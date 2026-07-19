@@ -2,8 +2,8 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خطأ 404 - الصفحة مفقودة 🐍</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <title>لعبة يا رجال67 🐍 - نسخة الجوال والغش</title>
     <style>
         body {
             background-color: #4a752c;
@@ -11,76 +11,446 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
-            color: white;
-            text-align: center;
             user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            padding: 10px;
+            box-sizing: border-box;
         }
-        .error-container {
-            background-color: #3b5c22;
-            border: 10px solid #578a34;
-            border-radius: 12px;
-            padding: 40px;
-            box-shadow: 0 12px 32px rgba(0,0,0,0.4);
-            max-width: 400px;
-            width: 90%;
+        .top-bar {
+            width: 100%;
+            max-width: 710px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 5px;
+            box-sizing: border-box;
         }
-        .error-code {
-            font-size: 96px;
+        .game-title {
+            color: white;
+            font-size: 22px;
             font-weight: bold;
-            margin: 0;
-            color: #ffd700;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        .snake-emoji {
-            font-size: 64px;
-            margin: 20px 0;
-            display: inline-block;
-            animation: wiggle 2s infinite ease-in-out;
-        }
-        h2 {
+        .score-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
             font-size: 24px;
-            margin-bottom: 15px;
+            font-weight: bold;
         }
-        p {
-            color: #aad751;
+        /* زر الغش السري */
+        .cheat-toggle {
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            font-size: 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        /* قائمة الغش */
+        .cheat-menu {
+            display: none;
+            background-color: #2c3e50;
+            border: 3px solid #34495e;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            width: 100%;
+            max-width: 710px;
+            box-sizing: border-box;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .cheat-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .cheat-btn.green { background-color: #2ecc71; }
+        .cheat-btn.purple { background-color: #9b59b6; }
+
+        .main-container {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            max-width: 710px;
+        }
+        .game-box {
+            position: relative;
+            border: 8px solid #578a34;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+            background-color: #aad751;
+        }
+        canvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+        /* لوحة التوب 100 */
+        .leaderboard {
+            width: 200px;
+            height: 380px;
+            background-color: #3b5c22;
+            border: 8px solid #436927;
+            border-radius: 12px;
+            color: white;
+            padding: 12px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+        }
+        @media (max-width: 600px) {
+            .leaderboard { width: 100%; height: 150px; }
+            .top-bar { max-width: 380px; }
+            .main-container { max-width: 380px; }
+        }
+        .leaderboard h3 {
+            margin: 0 0 8px 0;
+            text-align: center;
+            font-size: 18px;
+            border-bottom: 2px solid #578a34;
+            padding-bottom: 6px;
+        }
+        .score-list {
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 4px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 13px;
+        }
+        .score-item.current-user {
+            color: #fff;
+            background-color: #1a73e8;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+        /* أزرار تحكم الجوال اللمسية */
+        .mobile-controls {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+            width: 100%;
+        }
+        @media (pointer: coarse) {
+            .mobile-controls { display: flex; }
+        }
+        .row { display: flex; gap: 25px; }
+        .btn-touch {
+            width: 65px;
+            height: 65px;
+            background-color: rgba(255, 255, 255, 0.25);
+            border: 3px solid white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .btn-touch:active {
+            background-color: rgba(255, 255, 255, 0.5);
+            transform: scale(0.92);
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            backdrop-filter: blur(4px);
+            z-index: 10;
+        }
+        .overlay input {
+            padding: 10px;
             font-size: 16px;
-            margin-bottom: 30px;
-            line-height: 1.5;
+            border-radius: 6px;
+            border: none;
+            margin-bottom: 15px;
+            text-align: center;
         }
-        .back-btn {
-            display: inline-block;
+        .start-btn, .restart-btn {
             background-color: #1a73e8;
             color: white;
-            text-decoration: none;
-            padding: 14px 28px;
-            font-size: 18px;
+            border: none;
+            padding: 10px 24px;
+            font-size: 16px;
             font-weight: bold;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: all 0.2s ease;
-        }
-        .back-btn:hover {
-            background-color: #1557b0;
-            transform: scale(1.05);
-        }
-        @keyframes wiggle {
-            0%, 100% { transform: rotate(-10deg); }
-            50% { transform: rotate(10deg); }
+            border-radius: 6px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-<div class="error-container">
-    <div class="error-code">404</div>
-    <div class="snake-emoji">🐍❌</div>
-    <h2>أفااا! مضيع الطريق يا وحش؟</h2>
-    <p>الصفحة اللي تدور عليها مهيب موجودة، شكله الثعبان أكل الرابط وهو جائع!</p>
-    <a href="index.html" class="back-btn">ارجع للعبة يا رجال67 🔄</a>
+<div class="top-bar">
+    <div class="game-title">لعبة يا رجال67 🐍</div>
+    <button class="cheat-toggle" onclick="toggleCheatMenu()">وضع المطور ⚙️</button>
+    <div class="score-container">
+        <span>🍎</span>
+        <span id="score">0</span>
+    </div>
 </div>
 
+<!-- قائمة الغش السرية -->
+<div class="cheat-menu" id="cheatMenu">
+    <button class="cheat-btn green" onclick="cheatAddScore()">غش: سكور +10 🏆</button>
+    <button class="cheat-btn purple" onclick="cheatGrowLength()">غش: زيادة طول +5 🐍</button>
+    <button class="cheat-btn" onclick="cheatChangeSpeed(90)">سرعة: طيارة ⚡</button>
+    <button class="cheat-btn green" onclick="cheatChangeSpeed(250)">سرعة: بطيء 🐢</button>
+</div>
+
+<div class="main-container">
+    <div class="game-box">
+        <canvas id="gameCanvas" width="360" height="360"></canvas>
+        
+        <div class="overlay" id="startScreen">
+            <h2 style="margin-bottom:10px;">سجل اسمك يا وحش 🔥</h2>
+            <input type="text" id="playerNameInput" placeholder="يا رجال67" maxlength="12">
+            <button class="start-btn" onclick="initPlayerName()">دخول اللعبة 🎮</button>
+        </div>
+
+        <div class="overlay" id="gameOverScreen" style="display: none;">
+            <h2 id="gameOverText">انتهت اللعبة!</h2>
+            <button class="restart-btn" onclick="resetGame()">إعادة اللعب 🔄</button>
+        </div>
+    </div>
+
+    <div class="leaderboard">
+        <h3>أفضل 100 لاعب 🏆</h3>
+        <div class="score-list" id="scoreList"></div>
+    </div>
+</div>
+
+<!-- أزرار الجوال اللمسية -->
+<div class="mobile-controls">
+    <div class="btn-touch" onclick="handleTouch('Up')">⬆️</div>
+    <div class="row">
+        <div class="btn-touch" onclick="handleTouch('Left')">⬅️</div>
+        <div class="btn-touch" onclick="handleTouch('Right')">➡️</div>
+    </div>
+    <div class="btn-touch" onclick="handleTouch('Down')">⬇️</div>
+</div>
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const gridSize = 30; 
+    const cols = canvas.width / gridSize;
+    const rows = canvas.height / gridSize;
+
+    let snake = [];
+    let food = {x: 0, y: 0};
+    let dx = 1, dy = 0, nextDx = 1, nextDy = 0;
+    let score = 0;
+    let gameInterval;
+    let playerName = "يا رجال67";
+    let speed = 190; 
+
+    let leaderBoardData = JSON.parse(localStorage.getItem("snake_real_top100_v2")) || [];
+
+    document.addEventListener("keydown", changeDirection);
+
+    function toggleCheatMenu() {
+        const menu = document.getElementById("cheatMenu");
+        menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+    }
+
+    // وظائف الغش الرهيبة
+    function cheatAddScore() {
+        score += 10;
+        document.getElementById("score").innerText = score;
+        updateLiveScore();
+    }
+
+    function cheatGrowLength() {
+        const last = snake[snake.length - 1] || {x: 0, y: 0};
+        for(let i=0; i<5; i++) {
+            snake.push({x: last.x, y: last.y});
+        }
+    }
+
+    function cheatChangeSpeed(newSpeed) {
+        speed = newSpeed;
+        clearInterval(gameInterval);
+        gameInterval = setInterval(update, speed);
+    }
+
+    function initPlayerName() {
+        const inputVal = document.getElementById("playerNameInput").value.trim();
+        if (inputVal !== "") playerName = inputVal;
+        document.getElementById("startScreen").style.display = "none";
+        
+        removeOldRecord();
+        leaderBoardData.push({ name: playerName, score: 0 });
+        sortAndSave();
+        resetGameData();
+        updateLeaderboardView();
+        gameInterval = setInterval(update, speed);
+    }
+
+    function resetGameData() {
+        snake = [{x: 4, y: 5}, {x: 3, y: 5}, {x: 2, y: 5}];
+        dx = 1; dy = 0; nextDx = 1; nextDy = 0;
+        score = 0;
+        speed = 190;
+        document.getElementById("score").innerText = score;
+        generateFood();
+    }
+
+    function update() {
+        dx = nextDx; dy = nextDy;
+        let headX = snake[0].x + dx;
+        let headY = snake[0].y + dy;
+
+        // ميزة دخول الجدران
+        if (headX < 0) headX = cols - 1;
+        if (headX >= cols) headX = 0;
+        if (headY < 0) headY = rows - 1;
+        if (headY >= rows) headY = 0;
+
+        const head = {x: headX, y: headY};
+
+        if (checkCollision(head)) {
+            clearInterval(gameInterval);
+            document.getElementById("gameOverText").innerText = `انتهت اللعبة يا ${playerName}! 🎮`;
+            document.getElementById("gameOverScreen").style.display = "flex";
+            return;
+        }
+
+        snake.unshift(head);
+        if (head.x === food.x && head.y === food.y) {
+            score++;
+            document.getElementById("score").innerText = score;
+            updateLiveScore();
+            generateFood();
+        } else {
+            snake.pop();
+        }
+        draw();
+    }
+
+    function updateLiveScore() {
+        removeOldRecord();
+        leaderBoardData.push({ name: playerName, score: score });
+        sortAndSave();
+        updateLeaderboardView();
+    }
+
+    function removeOldRecord() {
+        leaderBoardData = leaderBoardData.filter(item => item.name !== playerName);
+    }
+
+    function sortAndSave() {
+        leaderBoardData.sort((a, b) => b.score - a.score);
+        leaderBoardData = leaderBoardData.slice(0, 100);
+        localStorage.setItem("snake_real_top100_v2", JSON.stringify(leaderBoardData));
+    }
+
+    function updateLeaderboardView() {
+        const listContainer = document.getElementById("scoreList");
+        listContainer.innerHTML = "";
+        leaderBoardData.forEach((item, index) => {
+            const itemDiv = document.createElement("div");
+            itemDiv.className = "score-item";
+            if (item.name === playerName) itemDiv.className += " current-user";
+            itemDiv.innerHTML = `<span>#${index + 1} ${item.name}</span><span>${item.score}</span>`;
+            listContainer.appendChild(itemDiv);
+        });
+    }
+
+    function draw() {
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                ctx.fillStyle = (r + c) % 2 === 0 ? "#aad751" : "#a2d149";
+                ctx.fillRect(c * gridSize, r * gridSize, gridSize, gridSize);
+            }
+        }
+
+        // تفاحة
+        const fx = food.x * gridSize, fy = food.y * gridSize, r = gridSize / 2;
+        ctx.beginPath(); ctx.arc(fx + r, fy + r, r - 3, 0, Math.PI * 2); ctx.fillStyle = "#e74c3c"; ctx.fill();
+
+        // ثعبان ناعم ومستدير
+        snake.forEach((part, index) => {
+            const sx = part.x * gridSize, sy = part.y * gridSize;
+            if (index === 0) {
+                ctx.fillStyle = "#1a3da1";
+                ctx.beginPath(); ctx.arc(sx + r, sy + r, r - 0.5, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = "white";
+                ctx.beginPath(); ctx.arc(sx + r + (dx*5), sy + r + (dy*5), 4, 0, Math.PI * 2); ctx.fill();
+            } else {
+                ctx.fillStyle = index % 2 === 0 ? "#2b59d6" : "#3b6df7";
+                ctx.beginPath(); ctx.arc(sx + r, sy + r, r - 2, 0, Math.PI * 2); ctx.fill();
+            }
+        });
+    }
+
+    function changeDirection(event) {
+        const key = event.key;
+        if (key === "ArrowUp" && dy === 0) { nextDx = 0; nextDy = -1; }
+        if (key === "ArrowDown" && dy === 0) { nextDx = 0; nextDy = 1; }
+        if (key === "ArrowLeft" && dx === 0) { nextDx = -1; nextDy = 0; }
+        if (key === "ArrowRight" && dx === 0) { nextDx = 1; nextDy = 0; }
+    }
+
+    function handleTouch(dir) {
+        if (dir === "Up" && dy === 0) { nextDx = 0; nextDy = -1; }
+        if (dir === "Down" && dy === 0) { nextDx = 0; nextDy = 1; }
+        if (dir === "Left" && dx === 0) { nextDx = -1; nextDy = 0; }
+        if (dir === "Right" && dx === 0) { nextDx = 1; nextDy = 0; }
+    }
+
+    function generateFood() {
+        food.x = Math.floor(Math.random() * cols);
+        food.y = Math.floor(Math.random() * rows);
+    }
+
+    function checkCollision(head) {
+        for (let i = 1; i < snake.length; i++) {
+            if (snake[i].x === head.x && snake[i].y === head.y) return true;
+        }
+        return false;
+    }
+
+    function resetGame() {
+        document.getElementById("gameOverScreen").style.display = "none";
+        clearInterval(gameInterval);
+        resetGameData();
+        updateLiveScore();
+        gameInterval = setInterval(update, speed);
+    }
+</script>
 </body>
 </html>
