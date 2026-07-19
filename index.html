@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>لعبة يا رجال67 🐍 - نسخة التحكم الكامل</title>
+    <title>لعبة يا رجال67 🐍 - النسخة الشاملة</title>
     <style>
         body {
             background-color: #4a752c;
@@ -53,7 +53,7 @@
             cursor: pointer;
             font-weight: bold;
         }
-        /* قائمة المطور الاحترافية */
+        /* قائمة المطور والتحكم بالتوب 100 */
         .cheat-menu {
             display: none;
             background-color: #2c3e50;
@@ -166,6 +166,7 @@
             .leaderboard { width: 100%; max-width: 340px; height: 130px; }
         }
 
+        /* أزرار اللمس للجوالات */
         .mobile-controls {
             display: none;
             flex-direction: column;
@@ -205,9 +206,17 @@
             padding: 10px; font-size: 16px; border-radius: 6px; border: none;
             margin-bottom: 15px; text-align: center; width: 70%; max-width: 200px;
         }
-        .start-btn, .restart-btn {
+        .start-btn, .restart-btn, .back-btn {
             background-color: #1a73e8; color: white; border: none;
             padding: 10px 24px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer;
+        }
+        
+        /* تصميم صفحة 404 المدمجة */
+        .error-code { font-size: 64px; font-weight: bold; color: #ffd700; margin: 0; }
+        .snake-emoji { font-size: 45px; margin: 10px 0; animation: wiggle 2s infinite ease-in-out; }
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
         }
     </style>
 </head>
@@ -222,16 +231,14 @@
     </div>
 </div>
 
-<!-- قائمة المطور المتطورة -->
 <div class="cheat-menu" id="cheatMenu">
-    <!-- غش اللعب الحالي -->
     <div class="cheat-section">
         <button class="cheat-btn green" onclick="cheatAddScore(event)">سكور +10 🏆</button>
         <button class="cheat-btn purple" onclick="cheatGrowLength(event)">طول +5 🐍</button>
         <button class="cheat-btn blue" onclick="cheatChangeSpeed(90, event)">سرعة طيارة ⚡</button>
         <button class="cheat-btn" onclick="cheatChangeSpeed(250, event)">سرعة بطيء 🐢</button>
+        <button class="cheat-btn purple" onclick="triggerFake404(event)">تجرِبة خطأ 404 ⚠️</button>
     </div>
-    <!-- هكر لوحة الصدارة والتوب 100 -->
     <div class="cheat-section">
         <input type="text" id="targetPlayerName" class="cheat-input" placeholder="اسم اللاعب">
         <input type="number" id="targetPlayerScore" class="cheat-input" placeholder="السكور الجديد">
@@ -244,15 +251,26 @@
     <div class="game-box">
         <canvas id="gameCanvas" width="360" height="360"></canvas>
         
+        <!-- شاشة البداية -->
         <div class="overlay" id="startScreen">
             <h2 style="margin-bottom:10px; font-size: 22px;">سجل اسمك يا وحش 🔥</h2>
             <input type="text" id="playerNameInput" placeholder="يا رجال67" maxlength="12">
             <button class="start-btn" onclick="initPlayerName(event)">دخول اللعبة 🎮</button>
         </div>
 
+        <!-- شاشة النهاية -->
         <div class="overlay" id="gameOverScreen" style="display: none;">
             <h2 id="gameOverText" style="font-size: 22px;">انتهت اللعبة!</h2>
             <button class="restart-btn" onclick="resetGame(event)">إعادة اللعب 🔄</button>
+        </div>
+
+        <!-- شاشة 404 المدمجة والذكية لحل مشكلة الضياع -->
+        <div class="overlay" id="error404Screen" style="display: none; text-align: center; padding: 10px;">
+            <div class="error-code">404</div>
+            <div class="snake-emoji">🐍❌</div>
+            <h3 style="margin: 5px 0; font-size: 18px;">أفااا! مضيع الطريق يا وحش؟</h3>
+            <p style="color: #aad751; font-size: 12px; margin-bottom: 15px;">الصفحة مهيب موجودة، شكله الثعبان أكل الرابط!</p>
+            <button class="back-btn" onclick="recoverFrom404(event)">ارجع للعبة يا رجال67 🔄</button>
         </div>
     </div>
 
@@ -307,7 +325,22 @@
         }
     }
 
-    // تعديل سكور أي لاعب في اللوحة
+    // تشغيل شاشة 404 فجأة للتجربة من قائمة المطور
+    function triggerFake404(e) {
+        if(e) e.preventDefault();
+        clearInterval(gameInterval);
+        document.getElementById("gameOverScreen").style.display = "none";
+        document.getElementById("startScreen").style.display = "none";
+        document.getElementById("error404Screen").style.display = "flex";
+    }
+
+    // العودة الآمنة الفورية من شاشة الـ 404 المدمجة دون الخروج من الصفحة
+    function recoverFrom404(e) {
+        if(e) e.preventDefault();
+        document.getElementById("error404Screen").style.display = "none";
+        resetGame(e);
+    }
+
     function adminModifyScore(e) {
         if(e) e.preventDefault();
         const targetName = document.getElementById("targetPlayerName").value.trim();
@@ -325,7 +358,6 @@
         alert(`تم تعديل سكور ${targetName} إلى ${targetScore} بنجاح!`);
     }
 
-    // إجبار لاعب على النزول للمركز 100
     function adminForceRank100(e) {
         if(e) e.preventDefault();
         const targetName = document.getElementById("targetPlayerName").value.trim();
@@ -513,6 +545,7 @@
     function resetGame(e) {
         if(e) e.preventDefault();
         document.getElementById("gameOverScreen").style.display = "none";
+        document.getElementById("error404Screen").style.display = "none";
         clearInterval(gameInterval);
         resetGameData();
         updateLiveScore();
