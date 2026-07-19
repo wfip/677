@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>لعبة يا رجال67 🐍 - نسخة التحكم النظيف</title>
+    <title>لعبة يا رجال67 🐍 - نسخة التحكم النهائي</title>
     <style>
         body {
             background-color: #4a752c;
@@ -167,7 +167,7 @@
             .leaderboard { width: 100%; max-width: 340px; height: 130px; }
         }
 
-        /* أزرار اللمس للجوالات */
+        /* أزرار الجوال */
         .mobile-controls {
             display: none;
             flex-direction: column;
@@ -212,7 +212,6 @@
             padding: 10px 24px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer;
         }
         
-        /* تصميم صفحة 404 المدمجة */
         .error-code { font-size: 64px; font-weight: bold; color: #ffd700; margin: 0; }
         .snake-emoji { font-size: 45px; margin: 10px 0; animation: wiggle 2s infinite ease-in-out; }
         @keyframes wiggle {
@@ -266,7 +265,7 @@
         <div class="overlay" id="error404Screen" style="display: none; text-align: center; padding: 10px;">
             <div class="error-code">404</div>
             <div class="snake-emoji">🐍❌</div>
-            <h3 style="margin: 5px 0; font-size: 18px;">أفااا! مضيع الطريق يا وحش؟</h3>
+            <h3 style="margin: 5px 0; font-size: 18px;">أفااا! مضيع الطريق يا وحش?</h3>
             <p style="color: #aad751; font-size: 12px; margin-bottom: 15px;">الصفحة مهيب موجودة، شكله الثعبان أكل الرابط!</p>
             <button class="back-btn" onclick="recoverFrom404(event)">ارجع للعبة يا رجال67 🔄</button>
         </div>
@@ -301,6 +300,7 @@
     let gameInterval;
     let playerName = "يا رجال67";
     let speed = 190; 
+    let isTardy = false; // حارس للتأكد من عدم إعادة التسجيل أثناء اللعب النشط
 
     let leaderBoardData = JSON.parse(localStorage.getItem("snake_real_top100_v2")) || [];
 
@@ -322,6 +322,7 @@
         }
     }
 
+    // دالة الطرد النهائي الصارمة
     function adminRemovePlayer(e) {
         if(e) e.preventDefault();
         const targetName = document.getElementById("targetPlayerName").value.trim();
@@ -331,16 +332,43 @@
             return;
         }
 
+        // جلب آخر بيانات مخزنة للتأكد من مزامنتها
+        leaderBoardData = JSON.parse(localStorage.getItem("snake_real_top100_v2")) || [];
         const originalLength = leaderBoardData.length;
+        
+        // تصفية وحذف كامل
         leaderBoardData = leaderBoardData.filter(item => item.name !== targetName);
 
         if(leaderBoardData.length === originalLength) {
             alert("مالقيت لاعب بهذا الاسم في القائمة 🤔");
         } else {
-            sortAndSave();
+            // إذا اللاعب المطرود هو نفسه اللي يلعب حالياً، نوقف حارس السكور
+            if (targetName === playerName) {
+                isTardy = true; 
+            }
+            localStorage.setItem("snake_real_top100_v2", JSON.stringify(leaderBoardData));
             updateLeaderboardView();
-            alert(`تم طرد اللاعب ${targetName} وحذفه نهائياً! 🧹`);
+            alert(`تم طرد اللاعب ${targetName} وحذفه تماماً بنجاح! 🧹`);
         }
+    }
+
+    function adminModifyScore(e) {
+        if(e) e.preventDefault();
+        const targetName = document.getElementById("targetPlayerName").value.trim();
+        const targetScore = parseInt(document.getElementById("targetPlayerScore").value);
+
+        if(!targetName || isNaN(targetScore)) {
+            alert("اكتب اسم اللاعب والسكور الجديد أولاً!");
+            return;
+        }
+
+        leaderBoardData = JSON.parse(localStorage.getItem("snake_real_top100_v2")) || [];
+        leaderBoardData = leaderBoardData.filter(item => item.name !== targetName);
+        leaderBoardData.push({ name: targetName, score: targetScore });
+        
+        sortAndSave();
+        updateLeaderboardView();
+        alert(`تم تعديل سكور ${targetName} إلى ${targetScore} بنجاح!`);
     }
 
     function triggerFake404(e) {
@@ -355,23 +383,6 @@
         if(e) e.preventDefault();
         document.getElementById("error404Screen").style.display = "none";
         resetGame(e);
-    }
-
-    function adminModifyScore(e) {
-        if(e) e.preventDefault();
-        const targetName = document.getElementById("targetPlayerName").value.trim();
-        const targetScore = parseInt(document.getElementById("targetPlayerScore").value);
-
-        if(!targetName || isNaN(targetScore)) {
-            alert("اكتب اسم اللاعب والسكور الجديد أولاً!");
-            return;
-        }
-
-        leaderBoardData = leaderBoardData.filter(item => item.name !== targetName);
-        leaderBoardData.push({ name: targetName, score: targetScore });
-        sortAndSave();
-        updateLeaderboardView();
-        alert(`تم تعديل سكور ${targetName} إلى ${targetScore} بنجاح!`);
     }
 
     function cheatAddScore(e) {
@@ -400,8 +411,11 @@
         if (inputVal !== "") playerName = inputVal;
         document.getElementById("startScreen").style.display = "none";
         
-        removeOldRecord();
+        isTardy = false;
+        leaderBoardData = JSON.parse(localStorage.getItem("snake_real_top100_v2")) || [];
+        leaderBoardData = leaderBoardData.filter(item => item.name !== playerName);
         leaderBoardData.push({ name: playerName, score: 0 });
+        
         sortAndSave();
         resetGameData();
         updateLeaderboardView();
@@ -449,14 +463,12 @@
     }
 
     function updateLiveScore() {
-        removeOldRecord();
+        if (isTardy) return; // منع التحديث وإعادة الاسم إذا كان مطروداً في هذا الدور
+        leaderBoardData = JSON.parse(localStorage.getItem("snake_real_top100_v2")) || [];
+        leaderBoardData = leaderBoardData.filter(item => item.name !== playerName);
         leaderBoardData.push({ name: playerName, score: score });
         sortAndSave();
         updateLeaderboardView();
-    }
-
-    function removeOldRecord() {
-        leaderBoardData = leaderBoardData.filter(item => item.name !== playerName);
     }
 
     function sortAndSave() {
@@ -466,18 +478,18 @@
     }
 
     function updateLeaderboardView() {
+        leaderBoardData = JSON.parse(localStorage.getItem("snake_real_top100_v2")) || [];
         const listContainer = document.getElementById("scoreList");
         listContainer.innerHTML = "";
         leaderBoardData.forEach((item, index) => {
             const itemDiv = document.createElement("div");
             itemDiv.className = "score-item";
-            if (item.name === playerName) itemDiv.className += " current-user";
+            if (item.name === playerName && !isTardy) itemDiv.className += " current-user";
             itemDiv.innerHTML = `<span>#${index + 1} ${item.name}</span><span>${item.score}</span>`;
             listContainer.appendChild(itemDiv);
         });
     }
 
-    // منع تداخل حركة اللعبة مع الكتابة في خانات المطور
     document.getElementById("targetPlayerName").addEventListener("keydown", (e) => e.stopPropagation());
     document.getElementById("targetPlayerScore").addEventListener("keydown", (e) => e.stopPropagation());
 
@@ -539,10 +551,14 @@
         document.getElementById("gameOverScreen").style.display = "none";
         document.getElementById("error404Screen").style.display = "none";
         clearInterval(gameInterval);
+        isTardy = false;
         resetGameData();
         updateLiveScore();
         gameInterval = setInterval(update, speed);
     }
+
+    // تحديث أولي عند تشغيل الصفحة لقراءة البيانات المحفوظة سابقاً
+    updateLeaderboardView();
 </script>
 </body>
 </html>
