@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>لعبة يا رجال67 🐍 - نسخة الطرد والتحكم</title>
+    <title>لعبة يا رجال67 🐍 - نسخة التحكم النظيف</title>
     <style>
         body {
             background-color: #4a752c;
@@ -244,7 +244,6 @@
         <input type="text" id="targetPlayerName" class="cheat-input" placeholder="اسم اللاعب">
         <input type="number" id="targetPlayerScore" class="cheat-input" placeholder="السكور الجديد">
         <button class="cheat-btn green" onclick="adminModifyScore(event)">تعديل نتيجته ✏️</button>
-        <!-- تم الاكتفاء بزر الطرد النهائي النظيف وحذف نظام اللاعب المؤقت -->
         <button class="cheat-btn black" onclick="adminRemovePlayer(event)">طرد نهائي ❌</button>
     </div>
 </div>
@@ -280,7 +279,7 @@
 </div>
 
 <div class="mobile-controls">
-    <div class="btn-touch" onmousedown="handleTouch('Up', event)" ontouchstart="shareTouch('Up', event)">⬆️</div>
+    <div class="btn-touch" onmousedown="handleTouch('Up', event)" ontouchstart="handleTouch('Up', event)">⬆️</div>
     <div class="row">
         <div class="btn-touch" onmousedown="handleTouch('Left', event)" ontouchstart="handleTouch('Left', event)">⬅️</div>
         <div class="btn-touch" onmousedown="handleTouch('Right', event)" ontouchstart="handleTouch('Right', event)">➡️</div>
@@ -323,7 +322,6 @@
         }
     }
 
-    // طرد نهائي للاعب من القائمة تماماً
     function adminRemovePlayer(e) {
         if(e) e.preventDefault();
         const targetName = document.getElementById("targetPlayerName").value.trim();
@@ -341,7 +339,7 @@
         } else {
             sortAndSave();
             updateLeaderboardView();
-            alert(`تم طرد اللاعب ${targetName} وحذفه من التوب 100! 🧹`);
+            alert(`تم طرد اللاعب ${targetName} وحذفه نهائياً! 🧹`);
         }
     }
 
@@ -479,6 +477,10 @@
         });
     }
 
+    // منع تداخل حركة اللعبة مع الكتابة في خانات المطور
+    document.getElementById("targetPlayerName").addEventListener("keydown", (e) => e.stopPropagation());
+    document.getElementById("targetPlayerScore").addEventListener("keydown", (e) => e.stopPropagation());
+
     function draw() {
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
@@ -519,9 +521,6 @@
         if (dir === "Left" && dx === 0) { nextDx = -1; nextDy = 0; }
         if (dir === "Right" && dx === 0) { nextDx = 1; nextDy = 0; }
     }
-
-    document.getElementById("targetPlayerName").addEventListener("keydown", (e) => e.stopPropagation());
-    document.getElementById("targetPlayerScore").addEventListener("keydown", (e) => e.stopPropagation());
 
     function generateFood() {
         food.x = Math.floor(Math.random() * cols);
